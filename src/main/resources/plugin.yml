@@ -1,0 +1,10 @@
+name: NPCSystem
+version: '${project.version}'
+main: chatzis.nikolas.mc.npcsystem.NPCSystem
+api-version: '1.20'
+depend:
+  - NikoAPI
+
+commands:
+  npcdebug:
+    usage: /<command>
