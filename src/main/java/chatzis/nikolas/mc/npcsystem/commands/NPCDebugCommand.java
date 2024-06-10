@@ -20,7 +20,7 @@ public class NPCDebugCommand implements CommandExecutor {
                 npc = new NPC(ChatColor.translateAlternateColorCodes('&', args[0]), player.getLocation());
             }
             else if (npc != null)
-                npc.moveTo(player.getLocation());
+                npc.teleport(player.getLocation());
         }
         return true;
     }

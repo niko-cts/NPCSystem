@@ -9,7 +9,6 @@ import org.bukkit.craftbukkit.v1_20_R4.CraftWorld;
 
 public class NMSHelper {
 
-
     public static ServerLevel getServerWorld(World world) {
         return ((CraftWorld) world).getHandle();
     }

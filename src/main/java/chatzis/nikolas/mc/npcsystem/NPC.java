@@ -14,7 +14,10 @@ import com.mojang.authlib.properties.Property;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.network.protocol.game.*;
+import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
+import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -121,7 +124,6 @@ public class NPC {
     private final NPCPlayer npcPlayer;
     private final List<NPCClickEvent> clickEvents;
     protected final Set<UUID> visibleTo;
-    private Location location;
     private boolean lookAtPlayer;
     private int distanceToLookAt;
 
@@ -166,11 +168,8 @@ public class NPC {
 
         this.clickEvents = new ArrayList<>();
         this.visibleTo = visibleTo;
-        this.location = location;
         this.lookAtPlayer = true;
         setDistanceToLookAt(10);
-
-        ServerLevel nmsWorld = NMSHelper.getServerWorld(location.getWorld());
 
         String name = ".";
         if (wholeName != null) {
@@ -183,11 +182,15 @@ public class NPC {
         }
         this.npcHologramName = null;
 
+        Objects.requireNonNull(location);
+        Objects.requireNonNull(location.getWorld());
+
         GameProfile gameProfile = new GameProfile(UUID.randomUUID(), name);
         if (skin != null) {
             gameProfile.getProperties().put("textures", new Property("textures", skin.value(), skin.signature()));
         }
 
+        ServerLevel nmsWorld = NMSHelper.getServerWorld(location.getWorld());
         ClientInformation info = new ClientInformation("en_us", 0, ChatVisiblity.FULL, false, 0, HumanoidArm.RIGHT, false, false);
         this.npcPlayer = new NPCPlayer(this, SERVER, nmsWorld, gameProfile, info, location);
         this.npcPlayer.connection = new NPCPacketListener(SERVER, new NPCConnection(PacketFlow.CLIENTBOUND), npcPlayer,
@@ -198,8 +201,7 @@ public class NPC {
         SynchedEntityData dataWatcher = this.npcPlayer.getEntityData();
         dataWatcher.set(net.minecraft.world.entity.player.Player.DATA_HEALTH_ID, 20F); // life
 
-        @SuppressWarnings("unchecked")
-        EntityDataAccessor<Byte> skinAccessor = (EntityDataAccessor<Byte>) ReflectionHelper.get(net.minecraft.world.entity.player.Player.class, null, "bV");
+        EntityDataAccessor<Byte> skinAccessor = ReflectionHelper.get(net.minecraft.world.entity.player.Player.class, null, "bV");
         if (skinAccessor == null)
             skinAccessor = new EntityDataAccessor<>(17, EntityDataSerializers.BYTE);
         dataWatcher.set(skinAccessor, (byte) 0xFF); // skin
@@ -268,7 +270,7 @@ public class NPC {
         if (npcPlayer.isAlive())
             npcPlayer.die(null); // will call NPC.remove here
 
-        npcPlayer.mob.remove(Entity.RemovalReason.UNLOADED_WITH_PLAYER);
+        npcPlayer.remove(Entity.RemovalReason.DISCARDED);
 
         NPC.removeNPC(this);
     }
@@ -281,8 +283,7 @@ public class NPC {
      * @since 0.0.1
      */
     public void teleport(Location teleportLocation) {
-        this.location = teleportLocation;
-        npcPlayer.teleport(this.location);
+        npcPlayer.teleport(teleportLocation);
     }
 
     /**
@@ -305,6 +306,8 @@ public class NPC {
     public void lookAtLocation(Player player, Location lookLocation) {
         npcPlayer.mob.setXRot(lookLocation.getPitch());
         npcPlayer.mob.setYRot(lookLocation.getYaw());
+        npcPlayer.setXRot(lookLocation.getPitch());
+        npcPlayer.setYRot(lookLocation.getYaw());
         Utils.sendPackets(player, getLookAtPackets(lookLocation).toArray(new Packet<?>[0]));
     }
 
@@ -359,11 +362,13 @@ public class NPC {
     }
 
     /**
-     * @return if npc looks at player, when running under the distance distanceToLookAt
+     * Checks whether lookAtPlayer is enabled and the npc is not moving
+     *
+     * @return npc should look at player
      * @since 0.0.1
      */
     public boolean looksAtPlayer() {
-        return lookAtPlayer;
+        return lookAtPlayer && npcPlayer.mob.getNavigation().isDone();
     }
 
     /**
@@ -371,7 +376,7 @@ public class NPC {
      * @since 0.0.1
      */
     public Location getLocation() {
-        return location;
+        return npcPlayer.getBukkitEntity().getLocation();
     }
 
     /**

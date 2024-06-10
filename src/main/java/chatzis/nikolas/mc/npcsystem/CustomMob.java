@@ -1,64 +1,99 @@
 package chatzis.nikolas.mc.npcsystem;
 
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.RelativeMovement;
-import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.animal.Wolf;
-import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.Set;
-
+/**
+ * This class represents the PathfindingMob for the {@link NPCPlayer} class.
+ * It's needed because the NPCPlayer does not have a Navigator inside.
+ * <br>
+ * As soon as this entity is moved, the NPCPlayer copies its movement.
+ * <br>
+ * It will spawn invisible, not-persistent and not collidable.
+ *
+ * @author Nikolas Chatzis
+ */
 public class CustomMob extends Wolf {
 
     private final NPCPlayer npcPlayer;
 
+    /**
+     * Spawns an invisible, invulnerable, not colidable, not persistable mob at the position of the given NPCPlayer.
+     *
+     * @param npcPlayer NPCPlayer - the NPC the Pathfinding mob is for
+     */
     public CustomMob(NPCPlayer npcPlayer) {
         super(EntityType.WOLF, npcPlayer.serverLevel());
         this.npcPlayer = npcPlayer;
+
         setInvulnerable(true);
-        noCulling = true;
+        setPersistenceRequired(false);
+        setPos(npcPlayer.getX(), npcPlayer.getY(), npcPlayer.getZ());
+        setXRot(npcPlayer.getXRot());
+        setYRot(npcPlayer.getYRot());
+        setYHeadRot(npcPlayer.getYHeadRot());
+
+        LivingEntity entity = (LivingEntity) getBukkitEntity();
+        entity.setCollidable(false);
+        entity.setPersistent(false);
 
         this.goalSelector.getAvailableGoals().clear();
         if (!npcPlayer.npc.shouldLookAtPlayer())
             this.goalSelector.addGoal(1, new RandomLookAroundGoal(this));
 
-//        setOwnerUUID(new ArrayList<>(Bukkit.getOnlinePlayers()).getFirst().getUniqueId());
-//        this.goalSelector.addGoal(0, new FollowOwnerGoal(this, 1, 5, 10, false));
-
-        setPos(npcPlayer.getX(), npcPlayer.getY(), npcPlayer.getZ());
         npcPlayer.serverLevel().getWorld().addEntity(this, CreatureSpawnEvent.SpawnReason.CUSTOM);
-
-        ((LivingEntity) getBukkitEntity()).setCollidable(false);
 
         new BukkitRunnable() {
             @Override
             public void run() {
                 setInvisible(true);
             }
-        }.runTaskLater(NPCSystem.getInstance(), 10);
+        }.runTaskLater(NPCSystem.getInstance(), 3);
     }
 
+
+    /**
+     * Will try to move to the given position, which leads the NPC to move as well.
+     * This method only works in a radius of 30 blocks. Use a custom Pathfinder instead.
+     *
+     * @param x double - the x position
+     * @param y double - the y position
+     * @param z double - the z position
+     */
     public void tellToMoveTo(double x, double y, double z) {
         this.navigation.moveTo(x, y, z, 1D);
     }
 
+    /**
+     * Checks if the mob moved and if so, moves tells the NPC to move.
+     */
     @Override
     public void tick() {
         super.tick();
         if (this.xo != this.getX() || this.yo != this.getY() || this.zo != this.getZ()) {
-            npcPlayer.absMoveTo(this.getX(), this.getY(), this.getZ(), this.yRotO, this.xRotO);
+            npcPlayer.absMoveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
         }
     }
 
     @Override
-    public boolean teleportTo(ServerLevel worldserver, double d0, double d1, double d2, Set<RelativeMovement> set, float f, float f1) {
-        var teleport = super.teleportTo(worldserver, d0, d1, d2, set, f, f1);
-        npcPlayer.teleportTo(worldserver, d0, d1, d2, set, f, f1);
-        return teleport;
+    public boolean hurt(DamageSource damagesource, float f) {
+        return false;
+    }
+
+
+    @Override
+    public void die(DamageSource damagesource) {
+        remove(RemovalReason.KILLED);
+    }
+
+    @Override
+    public void remove(RemovalReason entity_removalreason) {
+        super.remove(entity_removalreason);
+        if (!npcPlayer.isRemoved())
+            npcPlayer.remove(entity_removalreason);
     }
 }

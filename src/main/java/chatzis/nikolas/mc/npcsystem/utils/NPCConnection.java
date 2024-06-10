@@ -54,11 +54,7 @@ public class NPCConnection extends Connection {
 
     @Override
     public void setListenerForServerboundHandshake(PacketListener pl) {
-        try {
-            ReflectionHelper.set(Connection.class, this, "q", pl);
-            ReflectionHelper.set(Connection.class, this, "p", null);
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
+        ReflectionHelper.set(Connection.class, this, "q", pl);
+        ReflectionHelper.set(Connection.class, this, "p", null);
     }
 }

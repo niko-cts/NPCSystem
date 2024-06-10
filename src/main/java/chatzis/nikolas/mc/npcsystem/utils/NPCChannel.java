@@ -10,6 +10,7 @@ public class NPCChannel extends AbstractChannel {
     public NPCChannel(Channel parent) {
         super(parent);
     }
+
     @Override
     public ChannelConfig config() {
         config.setAutoRead(true);
