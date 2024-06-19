@@ -4,7 +4,6 @@ import chatzis.nikolas.mc.nikoapi.util.ReflectionHelper;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketListener;
 import net.minecraft.network.PacketSendListener;
-import net.minecraft.network.ProtocolInfo;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 
@@ -26,7 +25,6 @@ public class NPCConnection extends Connection {
         return PacketFlow.SERVERBOUND;
     }
 
-    @Override
     public void flushChannel() {
     }
 
@@ -43,16 +41,13 @@ public class NPCConnection extends Connection {
     public void send(Packet<?> packet, PacketSendListener genericfuturelistener) {
     }
 
-    @Override
     public void send(Packet<?> packet, PacketSendListener genericfuturelistener, boolean flag) {
     }
 
-    @Override
-    public <T extends PacketListener> void setupInboundProtocol(ProtocolInfo<T> protocolinfo, T t0) {
+//    public <T extends PacketListener> void setupInboundProtocol(ProtocolInfo<T> protocolinfo, T t0) {
+//
+//    }
 
-    }
-
-    @Override
     public void setListenerForServerboundHandshake(PacketListener pl) {
         ReflectionHelper.set(Connection.class, this, "q", pl);
         ReflectionHelper.set(Connection.class, this, "p", null);

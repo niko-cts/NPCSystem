@@ -7,6 +7,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.UUID;
+
 public class NPCDebugCommand implements CommandExecutor {
 
     NPC npc = null;
@@ -17,7 +19,7 @@ public class NPCDebugCommand implements CommandExecutor {
             if (args.length == 1){
                 if (npc != null)
                     npc.destroy();
-                npc = new NPC(ChatColor.translateAlternateColorCodes('&', args[0]), player.getLocation());
+                npc = new NPC(UUID.randomUUID(), ChatColor.translateAlternateColorCodes('&', args[0]), player.getLocation());
             }
             else if (npc != null)
                 npc.teleport(player.getLocation());

@@ -5,7 +5,6 @@ import chatzis.nikolas.mc.npcsystem.nms.NMSHelper;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -36,8 +35,8 @@ public class NPCPlayer extends ServerPlayer {
     private boolean moved = false;
     protected final CustomMob mob;
 
-    public NPCPlayer(NPC npc, MinecraftServer minecraftserver, ServerLevel world, GameProfile gameprofile, ClientInformation clientinformation, Location location) {
-        super(minecraftserver, world, gameprofile, clientinformation);
+    public NPCPlayer(NPC npc, MinecraftServer minecraftserver, ServerLevel world, GameProfile gameprofile, Location location) {
+        super(minecraftserver, world, gameprofile);
         this.npc = npc;
         setPos(location.getX(), location.getY(), location.getZ());
         setXRot(Mth.clamp(location.getPitch(), -90.0F, 90.0F) % 360.0F);

@@ -7,6 +7,7 @@ import net.minecraft.world.entity.animal.Wolf;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+
 /**
  * This class represents the PathfindingMob for the {@link NPCPlayer} class.
  * It's needed because the NPCPlayer does not have a Navigator inside.

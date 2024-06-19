@@ -64,4 +64,5 @@ public class PlayerInteractAtNPCEvent {
     public ClickType getAction() {
         return clickType;
     }
+
 }
