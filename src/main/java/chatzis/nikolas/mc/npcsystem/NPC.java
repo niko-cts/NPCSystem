@@ -24,6 +24,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -210,6 +211,24 @@ public class NPC {
 		npcPlayer.moveTo(location.getX(), location.getY(), location.getZ());
 	}
 
+	/**
+	 * Hide the NPC for a given player,
+	 * The NPC will respawn, if the player loads the chunk again
+	 *
+	 * @param player Player - player to hide
+	 * @since 0.0.1
+	 */
+	public void show(Player player) {
+		visibleTo.add(player.getUniqueId());
+		if (npcHologramName != null) {
+			APIPlayer apiPlayer = NikoAPI.getInstance().getPlayerHandler().getPlayer(player);
+			if (apiPlayer != null) {
+				apiPlayer.showHologram(npcHologramName);
+			}
+		}
+
+		npcPlayer.startSeenByPlayer(((CraftPlayer) player).getHandle());
+	}
 
 	/**
 	 * Hide the NPC for a given player,
