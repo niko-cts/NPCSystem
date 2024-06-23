@@ -1,7 +1,8 @@
 package chatzis.nikolas.mc.npcsystem.listener;
 
-import chatzis.nikolas.mc.nikoapi.NikoAPI;
-import chatzis.nikolas.mc.nikoapi.packet.reader.*;
+import chatzis.nikolas.mc.nikoapi.packet.reader.APIListenerManager;
+import chatzis.nikolas.mc.nikoapi.packet.reader.EntityUsePacket;
+import chatzis.nikolas.mc.nikoapi.packet.reader.PacketEntityUseListener;
 import chatzis.nikolas.mc.nikoapi.player.PlayerHandler;
 import chatzis.nikolas.mc.npcsystem.NPC;
 import chatzis.nikolas.mc.npcsystem.NPCSystem;
@@ -12,7 +13,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
 import java.util.logging.Level;
 
 /**
@@ -33,8 +35,8 @@ public class NPCPlayerListener implements Listener, PacketEntityUseListener {
      *
      * @since 0.0.1
      */
-    public NPCPlayerListener() {
-        this.playerHandler = NikoAPI.getInstance().getPlayerHandler();
+    public NPCPlayerListener(PlayerHandler playerHandler) {
+        this.playerHandler = playerHandler;
     }
 
     /**

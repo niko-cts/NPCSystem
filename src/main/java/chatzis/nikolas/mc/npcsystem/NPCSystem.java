@@ -1,17 +1,19 @@
 package chatzis.nikolas.mc.npcsystem;
 
 
+import chatzis.nikolas.mc.nikoapi.NikoAPI;
 import chatzis.nikolas.mc.nikoapi.util.RegisterBuilderUtil;
 import chatzis.nikolas.mc.npcsystem.commands.NPCDebugCommand;
 import chatzis.nikolas.mc.npcsystem.event.NPCClickEvent;
 import chatzis.nikolas.mc.npcsystem.listener.NPCPlayerListener;
 import chatzis.nikolas.mc.npcsystem.listener.PlayerQuitListener;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Logger;
 
 /**
  * Main class of the NPCSystem plugin.
@@ -36,9 +38,11 @@ public class NPCSystem extends JavaPlugin {
     public void onEnable() {
         instance = this;
         this.clickListenerList = new ArrayList<>();
+        Plugin nikoAPI = Bukkit.getPluginManager().getPlugin("NikoAPI");
+        System.out.println(nikoAPI);
 
         RegisterBuilderUtil registerUtil = new RegisterBuilderUtil(this);
-        NPCPlayerListener playerListener = new NPCPlayerListener();
+        NPCPlayerListener playerListener = new NPCPlayerListener(((NikoAPI) nikoAPI).getPlayerHandler());
         registerUtil.addListeners(playerListener, new PlayerQuitListener());
         registerUtil.addPacketListener(playerListener);
         registerUtil.register();
