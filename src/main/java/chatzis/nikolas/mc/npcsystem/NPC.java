@@ -7,10 +7,13 @@ import chatzis.nikolas.mc.nikoapi.util.ReflectionHelper;
 import chatzis.nikolas.mc.nikoapi.util.Utils;
 import chatzis.nikolas.mc.npcsystem.event.NPCClickEvent;
 import chatzis.nikolas.mc.npcsystem.nms.NMSHelper;
+import chatzis.nikolas.mc.npcsystem.utils.NPCConnection;
+import chatzis.nikolas.mc.npcsystem.utils.NPCPacketListener;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
@@ -186,8 +189,9 @@ public class NPC {
 		ServerLevel nmsWorld = NMSHelper.getServerWorld(location.getWorld());
 //        ClientInformation info = new ClientInformation("en_us", 0, ChatVisiblity.FULL, false, 0, HumanoidArm.RIGHT, false, false);
 		this.npcPlayer = new NPCPlayer(this, SERVER, nmsWorld, gameProfile, location);
-//        this.npcPlayer.connection = new NPCPacketListener(SERVER, new NPCConnection(PacketFlow.CLIENTBOUND), npcPlayer,
-//                new CommonListenerCookie(gameProfile, 0, info, false));
+        this.npcPlayer.connection = new NPCPacketListener(SERVER, new NPCConnection(PacketFlow.CLIENTBOUND), npcPlayer
+//                ,new CommonListenerCookie(gameProfile, 0, info, false)
+        );
 
 		nmsWorld.addNewPlayer(npcPlayer);
 
