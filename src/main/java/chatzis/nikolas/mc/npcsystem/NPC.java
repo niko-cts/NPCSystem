@@ -120,6 +120,7 @@ public class NPC {
 	private final NPCPlayer npcPlayer;
 	private final List<NPCClickEvent> clickEvents;
 	protected final Set<UUID> visibleTo;
+	protected final boolean withAi;
 	private boolean lookAtPlayer;
 	private int distanceToLookAt;
 
@@ -135,7 +136,7 @@ public class NPC {
 	 * @since 0.0.1
 	 */
 	public NPC(UUID uuid, String name, Location location, NPCSkin skin) {
-		this(uuid, name, location, skin, new HashSet<>());
+		this(uuid, name, location, skin, new HashSet<>(), false);
 	}
 
 	/**
@@ -146,7 +147,7 @@ public class NPC {
 	 * @since 0.0.1
 	 */
 	public NPC(UUID uuid, String name, Location location) {
-		this(uuid, name, location, null, new HashSet<>());
+		this(uuid, name, location, null, new HashSet<>(), false);
 	}
 
 
@@ -159,12 +160,13 @@ public class NPC {
 	 * @param visibleTo Set<UUID> - List of every player who can see the npc (empty = all players)
 	 * @since 0.0.1
 	 */
-	public NPC(UUID uuid, String wholeName, Location location, NPCSkin skin, Set<UUID> visibleTo) {
+	public NPC(UUID uuid, String wholeName, Location location, NPCSkin skin, Set<UUID> visibleTo, boolean withAi) {
 		Objects.requireNonNull(location, "Location of NPC is null");
 
 		this.clickEvents = new ArrayList<>();
 		this.visibleTo = visibleTo;
 		this.lookAtPlayer = true;
+		this.withAi = withAi;
 		setDistanceToLookAt(10);
 
 		String name = ".";
@@ -198,7 +200,7 @@ public class NPC {
 		SynchedEntityData dataWatcher = this.npcPlayer.getEntityData();
 		dataWatcher.set(net.minecraft.world.entity.player.Player.DATA_HEALTH_ID, 20F); // life
 
-		EntityDataAccessor<Byte> skinAccessor = ReflectionHelper.get(net.minecraft.world.entity.player.Player.class, null, "bV");
+		EntityDataAccessor<Byte> skinAccessor = ReflectionHelper.get(net.minecraft.world.entity.player.Player.class, null, "bL");
 		if (skinAccessor == null)
 			skinAccessor = new EntityDataAccessor<>(17, EntityDataSerializers.BYTE);
 		dataWatcher.set(skinAccessor, (byte) 0xFF); // skin

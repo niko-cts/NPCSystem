@@ -1,5 +1,6 @@
 package chatzis.nikolas.mc.npcsystem;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
@@ -41,6 +42,7 @@ public class CustomMob extends Wolf {
         LivingEntity entity = (LivingEntity) getBukkitEntity();
         entity.setCollidable(false);
         entity.setPersistent(false);
+        entity.setInvisible(true);
 
         this.goalSelector.getAvailableGoals().clear();
         if (!npcPlayer.npc.shouldLookAtPlayer())
@@ -53,7 +55,7 @@ public class CustomMob extends Wolf {
             public void run() {
                 setInvisible(true);
             }
-        }.runTaskLater(NPCSystem.getInstance(), 3);
+        }.runTaskLater(NPCSystem.getInstance(), 5);
     }
 
 
@@ -78,6 +80,11 @@ public class CustomMob extends Wolf {
         if (this.xo != this.getX() || this.yo != this.getY() || this.zo != this.getZ()) {
             npcPlayer.absMoveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
         }
+    }
+
+    @Override
+    public void startSeenByPlayer(ServerPlayer entityplayer) {
+        // should not be seen
     }
 
     @Override

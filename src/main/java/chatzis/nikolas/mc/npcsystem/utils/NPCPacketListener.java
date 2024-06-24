@@ -13,9 +13,6 @@ public class NPCPacketListener extends ServerGamePacketListenerImpl {
         super(minecraftserver, networkmanager, entityplayer);
     }
 
-    public void resumeFlushing() {
-    }
-
     @Override
     public void send(Packet<?> packet) {
     }
