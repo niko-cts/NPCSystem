@@ -112,6 +112,7 @@ public class NPC {
 	public static Optional<NPC> getById(int id) {
 		return Optional.ofNullable(NPC_IDS.get(id));
 	}
+
 	public static Optional<NPC> getByUUID(UUID uuid) {
 		return getAllNPC().stream().filter(n -> n.getUniqueID().equals(uuid)).findFirst();
 	}
@@ -191,9 +192,9 @@ public class NPC {
 		ServerLevel nmsWorld = NMSHelper.getServerWorld(location.getWorld());
 //        ClientInformation info = new ClientInformation("en_us", 0, ChatVisiblity.FULL, false, 0, HumanoidArm.RIGHT, false, false);
 		this.npcPlayer = new NPCPlayer(this, SERVER, nmsWorld, gameProfile, location);
-        this.npcPlayer.connection = new NPCPacketListener(SERVER, new NPCConnection(PacketFlow.CLIENTBOUND), npcPlayer
+		this.npcPlayer.connection = new NPCPacketListener(SERVER, new NPCConnection(PacketFlow.CLIENTBOUND), npcPlayer
 //                ,new CommonListenerCookie(gameProfile, 0, info, false)
-        );
+		);
 
 		nmsWorld.addNewPlayer(npcPlayer);
 
@@ -322,8 +323,10 @@ public class NPC {
 	 * @since 0.0.1
 	 */
 	public void lookAtLocation(Player player, Location lookLocation) {
-		npcPlayer.mob.setXRot(lookLocation.getPitch());
-		npcPlayer.mob.setYRot(lookLocation.getYaw());
+		if (npcPlayer.mob != null) {
+			npcPlayer.mob.setXRot(lookLocation.getPitch());
+			npcPlayer.mob.setYRot(lookLocation.getYaw());
+		}
 		npcPlayer.setXRot(lookLocation.getPitch());
 		npcPlayer.setYRot(lookLocation.getYaw());
 		Utils.sendPackets(player, getLookAtPackets(lookLocation).toArray(new Packet<?>[0]));
@@ -386,7 +389,7 @@ public class NPC {
 	 * @since 0.0.1
 	 */
 	public boolean looksAtPlayer() {
-		return lookAtPlayer && npcPlayer.mob.getNavigation().isDone();
+		return lookAtPlayer && (npcPlayer.mob == null || npcPlayer.mob.getNavigation().isDone());
 	}
 
 	/**
@@ -479,7 +482,7 @@ public class NPC {
 	 * @return int[] - all entity id's.
 	 */
 	protected int[] getNPCIds() {
-		return new int[]{this.npcPlayer.getId(), this.npcPlayer.mob.getId()};
+		return this.npcPlayer.mob != null ? new int[]{this.npcPlayer.getId(), this.npcPlayer.mob.getId()} : new int[]{this.npcPlayer.getId()};
 	}
 
 	/**
