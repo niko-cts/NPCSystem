@@ -42,6 +42,7 @@ public class NPCPlayer extends ServerPlayer {
 		setXRot(Mth.clamp(location.getPitch(), -90.0F, 90.0F) % 360.0F);
 		setYRot(location.getYaw() % 360);
 		setYHeadRot(location.getYaw() % 360);
+		setInvulnerable(true);
 
 		mob = npc.withAi ? new CustomMob(this) : null;
 	}
@@ -101,9 +102,8 @@ public class NPCPlayer extends ServerPlayer {
 		super.tick();
 		doTick();
 		// move mob if npc moved by itself
-		if (!this.moved && (this.xo != this.getX() || this.yo != this.getY() || this.zo != this.getZ())) {
-			if (mob != null)
-				this.mob.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
+		if (mob != null && !this.moved && (this.xo != this.getX() || this.yo != this.getY() || this.zo != this.getZ())) {
+			this.mob.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
 		}
 		this.moved = false;
 	}
@@ -140,11 +140,13 @@ public class NPCPlayer extends ServerPlayer {
 		double y = getY();
 		double z = getZ();
 		travel(Vec3.ZERO);
-		doCheckFallDamage(getX() - x, getY() - y, getZ() - z, onGround);
+		if (!isInvulnerable())
+			doCheckFallDamage(getX() - x, getY() - y, getZ() - z, onGround);
 	}
 
 	@Override
 	public boolean hurt(DamageSource damageSource, float f) {
+		if (isInvulnerable()) return false;
 		if (this.checkBlocking(damageSource)) {
 			try (var level = this.level()) {
 				this.playSound(SoundEvents.SHIELD_BLOCK, 0.8F, 0.8F + level.random.nextFloat() * 0.4F);
